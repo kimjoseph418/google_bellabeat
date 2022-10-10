@@ -441,7 +441,7 @@ daily_activity %>%
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](bellabeat_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](unnamed-chunk-2-1.png)<!-- -->
 
 We can see from above that although there is a positive correlation
 between steps and calories, the correlation coefficient of 0.59 is lower
@@ -457,7 +457,7 @@ daily_activity %>%
     labs(title = 'Total Distance Tracked By Weekday', x = 'Weekday', y = 'Total Distance (in km)')
 ```
 
-![](bellabeat_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](unnamed-chunk-3-1.png)<!-- -->
 
 We can see that total distance tracked stayed consistent during the
 weekdays, with similar medians and maximum/minimum values. This could be
@@ -480,7 +480,7 @@ merged_activity_sleep %>%
     facet_wrap(~weekday)
 ```
 
-![](bellabeat_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
     labs(title = 'Distribution of Sleep Quality by Weekday', x = 'Total Minutes Asleep', y = 'Count')
@@ -525,7 +525,7 @@ hourly_calories %>%
     labs(title = 'Calories Burnt Throughout Day', x = 'Time', y = 'Day', fill = 'average_calories')
 ```
 
-![](bellabeat_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](unnamed-chunk-5-1.png)<!-- -->
 
 We can tell from above that users are most actively burning calories in
 the afternoon, with almost no calories burnt between 12am - 4am. This is
