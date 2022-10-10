@@ -423,7 +423,7 @@ ggplot(data = merged_activity_sleep, mapping = aes(x = calories, y = total_minut
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](bellabeat_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](unnamed-chunk-1-1.png)<!-- -->
 
 We can see from above that there is not much correlation between
 calories burnt and sleep quality. We will need to explore other
