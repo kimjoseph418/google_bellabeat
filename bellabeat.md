@@ -415,10 +415,162 @@ head(merged_activity_sleep)
 
 ## Visualizations
 
+``` r
+ggplot(data = merged_activity_sleep, mapping = aes(x = calories, y = total_minutes_asleep)) +
+    geom_point() +
+    geom_smooth()
+```
+
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
 
-![](bellabeat_files/figure-gfm/visuals-1.png)<!-- -->
+![](bellabeat_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 We can see from above that there is not much correlation between
 calories burnt and sleep quality. We will need to explore other
 relationships that can suggest new business ideas.
+
+``` r
+# Relationship between steps and calories
+daily_activity %>%
+    ggplot(aes(total_steps, calories)) +
+    geom_point() +
+    geom_smooth() +
+    stat_cor(method = "pearson", label.x = 20000, label.y = 1000) +
+    labs(title = 'Steps vs. Calories', x = 'Steps', y = 'Calories')
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+![](bellabeat_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+We can see from above that although there is a positive correlation
+between steps and calories, the correlation coefficient of 0.59 is lower
+than expected.
+
+``` r
+daily_activity %>%
+    mutate(weekday = weekdays(date)) %>%
+    select(id, total_distance, weekday) %>%
+    mutate(weekday = factor(weekday, levels = c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))) %>% 
+    ggplot(aes(x = weekday, y = total_distance, fill = weekday)) + 
+    geom_boxplot() +
+    labs(title = 'Total Distance Tracked By Weekday', x = 'Weekday', y = 'Total Distance (in km)')
+```
+
+![](bellabeat_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+We can see that total distance tracked stayed consistent during the
+weekdays, with similar medians and maximum/minimum values. This could be
+because most people work on weekdays, resulting in consistent results in
+activity. Meanwhile, we can see that distance tracked was highest on
+Saturday and lowest on Sunday - this could be telling that people are
+more active and are out more on Saturdays, while they tend to stay at
+home on Sunday.
+
+``` r
+merged_activity_sleep %>%
+    mutate(weekday = weekdays(date)) %>%
+    select(id, date, total_minutes_asleep, weekday) %>%
+    mutate(sleep_quality = ifelse(total_minutes_asleep <= 420, 'Low', ifelse(total_minutes_asleep <= 540, 'Optimal', 'High'))) %>%
+    mutate(sleep_quality = factor(sleep_quality, levels = c('Low', 'Optimal', 'High'))) %>% 
+    mutate(weekday = factor(weekday, levels = c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))) %>% 
+    
+    ggplot(aes(x = total_minutes_asleep, fill = sleep_quality)) + 
+    geom_histogram(position = 'dodge', bins = 30) +
+    facet_wrap(~weekday)
+```
+
+![](bellabeat_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+    labs(title = 'Distribution of Sleep Quality by Weekday', x = 'Total Minutes Asleep', y = 'Count')
+```
+
+    ## $x
+    ## [1] "Total Minutes Asleep"
+    ## 
+    ## $y
+    ## [1] "Count"
+    ## 
+    ## $title
+    ## [1] "Distribution of Sleep Quality by Weekday"
+    ## 
+    ## attr(,"class")
+    ## [1] "labels"
+
+We can see from above that the amount of sleep for the users follows a
+normal distribution, with a mean of around 7 hours of sleep. Going
+deeper into each day, we can see that the distribution of sleep time is
+relatively higher on Wednesday and Thursday, and lower on Saturday and
+Sunday. This is interesting as the weekend is generally thought to be
+the time to sleep in for longer amounts of time.
+
+Another possible reason for this distribution is users not wearing their
+devices as often on weekends compared to weekdays.
+
+``` r
+hourly_calories %>%
+    mutate(date_time = as.POSIXct(date_time, format="%m/%d/%Y %I:%M:%S %p", tz = Sys.timezone())) %>%
+    separate(date_time, into = c('date', 'time'), sep = ' ') %>%
+    mutate(date = ymd(date)) %>%
+    mutate(weekday = weekdays(date)) %>%
+    group_by(weekday, time) %>%
+    summarize(average_calories = mean(calories), .groups = 'drop') %>%
+    mutate(weekday = factor(weekday, levels = c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))) %>%
+
+    ggplot(aes(time, weekday, fill = average_calories)) +
+    scale_fill_gradient(low = 'white', high = 'green2') +
+    geom_tile(color = 'white', lwd = 0.5, linetype = 1) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(title = 'Calories Burnt Throughout Day', x = 'Time', y = 'Day', fill = 'average_calories')
+```
+
+![](bellabeat_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+We can tell from above that users are most actively burning calories in
+the afternoon, with almost no calories burnt between 12am - 4am. This is
+expected as most people are sedentary at this time.
+
+Another observation we can make is that users start their daily activity
+later in the weekends as opposed to weekdays.
+
+## Summary
+
+After completing analysis using the FitBit Fitness Tracker data, we have
+come to some conclusions that Bellabeat could use to further promote
+growth in it’s success.
+
+#### Target users
+
+The target audience for the device would be users working in a
+professional environment, with 9-5 jobs to be more exact. The
+visualizations above show that users that used the FitBit tracker device
+had consistent lifestyles throughout the week, with slightly higher
+activity during the weekend. This suggests that the users were working
+in a traditional working environment and spending their personal time
+over the weekends.
+
+We also see that users have little to no activity from 12am to 4am,
+while activity is at its highest in the afternoon from 12pm to 6pm.
+Bellabeat can explore adding notifications based on time, reminding the
+user to exercise during peak hours in the afternoon, and to get ready
+for bed around midnight.
+
+#### Sleep quality
+
+We can see from the distributions of sleep quality throughout the week
+that users had more irregular sleeping patterns during the weekend as
+opposed to the weekend. We also saw a decrease in optimal sleep quality
+(7-9 hours) during the weekend as well. This suggests that users depart
+from their weekday routines during the weekend, leading to these
+irregularities. Bellabeat can look into adding a feature to customize
+notifications and set custom routines for weekdays and weekend
+separately, emphasizing the impact it would have to the users’ quality
+of sleep.
+
+#### Tracking calories
+
+Finally, we see a positive correlation between total steps taken and
+calories burnt. While this is a generall known fact, it is supported by
+the correlation being positive. This can help set a daily walking goal
+and inform users the impact it has in total calories burnt.
